@@ -15,9 +15,6 @@ double host_to_device( int N, int nReps ){
   // Allocate the device array
   hipMalloc(&f_gpu, N*sizeof(float));
 
-  // Initialize the cpu array
-  f_cpu = 0.0;
-
   t = clock();
   for( int i=0; i < nReps; i++ ){
     hipMemcpy(f_gpu,f_cpu,N*sizeof(float), hipMemcpyHostToDevice);
@@ -36,15 +33,16 @@ double host_to_device( int N, int nReps ){
 int main ( ){
 
   int nMax = 100000000;
-  int nStep = 1000;
+  int nStep = 10;
 
-  printf("Size (Bytes)", "Wall Time", "Bandwidth" );
-  for( int i = 1; i<nMax; i += nStep ){
+  printf("Size (Bytes), Wall Time (s), Bandwidth (GB/s) \n" );
+  for( int i = 1; i<nMax; i *= nStep ){
+
     double wallTime = host_to_device( i, 1000 );
-    printf("%d, %f, %f \n",sizeof(float)*i,wallTime,sizeof(float)*i/wallTime);
+    int dataSize=sizeof(float)*i;
+    double bandwidth=dataSize/wallTime/1024/1024/1024;
+
+    printf("%d, %f, %f \n",dataSize,wallTime,bandwidth);
   } 
-
-
-
 
 }
